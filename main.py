@@ -23,24 +23,30 @@ def build_table(al, n, P):
     print(R)
     return R
 
+def gcd(a, b):
+    if a == 0:
+        return (b, 0, 1)
+    g, y, x = gcd(b % a, a)
+    return (g, x - (b // a) * y, y)
+
 def inverse(a, m):
-    a_1 = pow(a, m - 2, m)
+    g, x, y = gcd(a, m)
+    if g != 1:
+        raise Exception("gcd != 1")
+    a_1 = x % m
     print(str(a) + "^-1 mod " + str(m) + " = " + str(a_1))
     return a_1
 
-def calc_xk(al, bt, n, p, Rp, X, k):
-    left = bt
-    al_1 = inverse(al, n)
+def calc_xk(al_1, bt, n, p, Rp, X, k):
     for i in range(len(X)):
-        left = (left * pow(al_1, X[i] * pow(p, i, n), n)) % n
-        #left = (left * pow(al, n - 1 - prime - X[i] * pow(p, i, n), n)) % n
-    left = pow(left, n // (p ** (k + 1)), n)
-    print("finding " + str(left))
+        bt = (bt * pow(al_1, X[i] * pow(p, i, n), n)) % n
+    bt = pow(bt, n // (p ** (k + 1)), n)
+    print("finding " + str(bt))
     for i in range(len(Rp)):
-        if left == Rp[i]:
+        if bt == Rp[i]:
             print("x" + str(k) + " = " + str(i))
             return i
-    print("ERROR in calc xk")
+    raise Exception("ERROR in calc xk")
 
 def solve_system(system, mod):
     print("system solving")
@@ -62,6 +68,7 @@ def Silver_Pohlig_Hellman(al, bt, n):
     P = decomposition(n - 1)
     R = build_table(al, n, P)
     print("calculating xi")
+    al_1 = inverse(al, n)
     system = []
     for p in P:
         X = []
@@ -70,18 +77,51 @@ def Silver_Pohlig_Hellman(al, bt, n):
         pl = p ** l
         print("p = " + str(p))
         for i in range(l):
-            xi = calc_xk(al, bt, n, p, R[p], X, i)
+            xi = calc_xk(al_1, bt, n, p, R[p], X, i)
             X.append(xi)
             x = (x + xi * p ** i) % pl
         system.append((x, pl))
         print("x = " + str(x) + " mod " + str(p))
     x = solve_system(system, n - 1)
+    print(str(al) + "^" + str(x) + " = " + str(bt) + " mod " + str(n))
     print("result checking")
     print(pow(al, x, n) == bt)
     return x
 
-Silver_Pohlig_Hellman(5, 11, 97)
+#part 3
 
-Silver_Pohlig_Hellman(3, 15, 43)
+#Silver_Pohlig_Hellman(5, 11, 97)
 
-Silver_Pohlig_Hellman(5, 11, 73)
+#Silver_Pohlig_Hellman(3, 15, 43)
+
+#Silver_Pohlig_Hellman(5, 11, 73)
+
+#Silver_Pohlig_Hellman(28, 3, 43)
+
+#Silver_Pohlig_Hellman(2, 1, 3)
+
+#part 4
+
+#Silver_Pohlig_Hellman(12, 13, 17)
+
+#Silver_Pohlig_Hellman(139, 7, 157)
+
+#Silver_Pohlig_Hellman(767, 33, 1109)
+
+#Silver_Pohlig_Hellman(6785, 83, 10009)
+
+#Silver_Pohlig_Hellman(65256, 17709, 100003)
+
+#Silver_Pohlig_Hellman(30698, 29570, 104729)
+
+#Silver_Pohlig_Hellman(893937, 902814, 1000999)
+
+#Silver_Pohlig_Hellman(3462806, 7146766, 10005053)
+
+#Silver_Pohlig_Hellman(3997814, 83667396, 100007377)
+
+#Silver_Pohlig_Hellman(844235946, 316388906, 1000006099)
+
+#Silver_Pohlig_Hellman(7328014316, 5693708660, 10000005553)
+
+#Silver_Pohlig_Hellman(40493389860, 84077439232, 100000015277)
